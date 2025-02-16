@@ -1,18 +1,45 @@
 "use client";
 import { useState } from "react";
 
-//Client component  for CSR
+//Client component for CSR
 export default function login_form() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+
+  const validateForm = () => {
+    let isValid = true;
+
+    if (!email) {
+      setEmailError("Email is required");
+      isValid = false;
+    } else {
+      setEmailError("");
+    }
+
+    if (!password) {
+      setPasswordError("Password is required");
+      isValid = false;
+    } else {
+      setPasswordError("");
+    }
+
+    return isValid;
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Form Data : ", { email, password });
+
+    const isValid = validateForm();
+    if (isValid) {
+      // Login form data submission
+      console.log("Form Data:", { email, password });
+    }
   };
 
   return (
-    <div className="w-[400px] mx-auto  ">
+    <div className="w-[400px] mx-auto">
       <div className="bg-white shadow-md border border-gray-200 rounded-lg p-4">
         <form onSubmit={handleSubmit} className="space-y-6">
           <h3 className="text-center text-xl font-bold text-blue-500">
@@ -33,14 +60,18 @@ export default function login_form() {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="bg-gray-100 border-gray-500 ring-1 ring-offset-1  text-gray-900 focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 rounded-lg"
+              className="bg-gray-100 border-gray-500 ring-1 ring-offset-1 text-gray-900 focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 rounded-lg"
               placeholder="yourname@gmail.com"
             />
+
+            {emailError && (
+              <div className="text-red-600 text-xs mt-2 ml-1">{emailError}</div>
+            )}
           </div>
 
           <div>
             <label
-              htmlFor="Password"
+              htmlFor="password"
               className="text-sm font-medium text-gray-900 block mb-2"
             >
               Password
@@ -52,9 +83,15 @@ export default function login_form() {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="bg-gray-100 border-gray-500 ring-1 ring-offset-1  text-gray-900 focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 rounded-lg"
+              className="bg-gray-100 border-gray-500 ring-1 ring-offset-1 text-gray-900 focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 rounded-lg"
               placeholder="***********"
             />
+
+            {passwordError && (
+              <div className="text-red-600 text-xs mt-2 ml-1">
+                {passwordError}
+              </div>
+            )}
           </div>
 
           <div className="flex items-start">
@@ -68,16 +105,12 @@ export default function login_form() {
             </div>
 
             <div className="text-sm ml-3">
-              <label htmlFor="remember" className="font-medium text-gray-900 ">
-                Remember me{" "}
+              <label htmlFor="remember" className="font-medium text-gray-900">
+                Remember me
               </label>
             </div>
             <div className="text-sm ml-auto">
-              <a
-                href="/ForgetPassword"
-                className=" text-blue-700 font-semibold"
-              >
-                {" "}
+              <a href="/ForgetPassword" className="text-blue-700 font-semibold">
                 Forget Password?
               </a>
             </div>
