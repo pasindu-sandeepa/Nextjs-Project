@@ -1,4 +1,12 @@
+
 import { getMovies } from "../libs/apis/server";
+import {   
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle, } from "shadcn"; // Ensure the correct import path
 
 export default async function DashboardPage() {
   // 1.add shadcn card
@@ -6,7 +14,8 @@ export default async function DashboardPage() {
   // 3. read the dummy response
   // 4. render dataset in ui
 
-  const { movies } = await getMovies();
+  const moviesQuery = await getMovies();
+  console.log("movie", moviesQuery);
 
   return (
     <main>
@@ -18,11 +27,15 @@ export default async function DashboardPage() {
       </div>
 
       <div className="container mt-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4  gap-4">
-          {movies?.length &&
-            movies.map((movie) => (
-              <div key={movie.id} className="h-96 bg-blue-400">
-                {movie.title}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {moviesQuery?.length &&
+            moviesQuery.map((movie) => (
+              <div key={movie?._id} className="h-96 bg-blue-400">
+                {movie?.id} 
+                 <Card>
+                 <CardTitle>{movie?.title}</CardTitle>
+                 <CardDescription>{movie?.plot}</CardDescription>
+                 </Card>
               </div>
             ))}
         </div>
