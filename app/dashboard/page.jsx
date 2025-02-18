@@ -1,4 +1,5 @@
 import { getMovies } from "../libs/apis/server";
+import { Badge } from "@/components/ui/badge";
 
 // Define Card components directly in the file
 function Card({ children }) {
@@ -6,7 +7,7 @@ function Card({ children }) {
 }
 
 function CardHeader({ children }) {
-  return <div className="p-4 bg bg-blue-500 border-b">{children}</div>;
+  return <div className="p-4 bg-blue-600 border-b">{children}</div>;
 }
 
 function CardTitle({ children }) {
@@ -22,7 +23,7 @@ function CardDescription({ children }) {
 }
 
 function CardFooter({ children }) {
-  return <div className="p-4  border-t">{children}</div>;
+  return <div className="p-4 border-t">{children}</div>;
 }
 
 export default async function DashboardPage() {
@@ -45,19 +46,23 @@ export default async function DashboardPage() {
               <div key={movie?._id} className="h-96">
                 <Card>
                   <CardHeader>
-                    <CardTitle>{movie?.title}</CardTitle>
+                    <CardTitle>{movie?.title} ({movie?.year})</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    {movie?.image && (
-                      <img
-                        src={movie.image}
-                        alt={movie.title}
-                        className="w-full h-48 object-cover rounded-t-lg"
-                      />
-                    )}
                     <CardDescription>{movie?.plot}</CardDescription>
                   </CardContent>
+                  <CardFooter>
+                    <div>
+                      <p className="font-medium">Category: {movie?.genres ?? "Unknown"}</p>
+                    </div >
+                    <div className="flex justify-between mt-9 ">
+                    <Badge variant="success" className="font-medium bg-green-800">
+                  Rated: {movie?.rated ?? "N/A"}
+                </Badge>
+                </div>
+                  </CardFooter>
                 </Card>
+               
               </div>
             ))}
         </div>
