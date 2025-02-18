@@ -1,7 +1,7 @@
 import ky from 'ky';
 
 const loginUser = async ({ email, password }) => {
-  const response = await fetch("http://localhost:3003/api/v1/login", {
+  const response = await fetch("http://localhost:3000/api/v1/login", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -15,7 +15,7 @@ export { loginUser };
 
 export const getMovies = async () => {
   try {
-    const response = await ky.get("http://localhost:3003/api/v1/movies", {
+    const response = await ky.get("http://localhost:3000/api/v1/movies", {
       cache: "no-cache",
     });
     if (response.ok) {
@@ -24,13 +24,13 @@ export const getMovies = async () => {
       return { error: true, message: "Failed to fetch movies" };
     }
   } catch (error) {
-    if (error) {
+    if (error.response) {
       const status = error.response.status;
-      const responseBody = error.response.data;
+      const responseBody = await error.response.json();
       console.log("HTTP Error", status, responseBody);
     } else {
       console.log("Unknown Error", error.message);
     }
-    return undefined;
+    return { error: true, message: "An error occurred while fetching movies" };
   }
 };
