@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import { Loader2 } from "lucide-react";
 
 const DEFAULT_ERROR = {
     error: false,
@@ -13,25 +14,51 @@ const DEFAULT_ERROR = {
 //Keep this as a client component(functional component)
 export default function RegisterForm() {
     const [error, setError] = useState(DEFAULT_ERROR);
+    const [isLoading, setLoading] = useState(false);
 
     const handleSubmitForm = async (event) => {
         event.preventDefault();
+        setLoading(true);
+        setError(DEFAULT_ERROR);
         console.log("Form is being submitted"); // Debugging statement
         const formData = new FormData(event.currentTarget);
         const name = formData.get("name") ?? "";
         const email = formData.get("email") ?? "";
         const password = formData.get("password") ?? "";
         const confirmPassword = formData.get("confirm-password") ?? "";
-        console.log("Form submitted", { name, email, password, confirmPassword });
 
         if (name && email && password && confirmPassword) {
-            if (password === confirmPassword) {
-                setError(DEFAULT_ERROR);
-            } else {
+            if (password.length < 6) {
+                setError({ error: true, message: "Password must be at least 6 characters long" });
+                setLoading(false);
+            } else if (password !== confirmPassword) {
                 setError({ error: true, message: "Passwords do not match" });
+                setLoading(false);
+            } else {
+                console.log("Form submitted", { name, email, password, confirmPassword });
+                setError(DEFAULT_ERROR);
+
+                // Send data to the API endpoint
+                const response = await fetch('/api/v1/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, email, password }),
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    console.log("User registered successfully", result);
+                } else {
+                    setError({ error: true, message: result.error });
+                }
+                setLoading(false);
             }
         } else {
             setError({ error: true, message: "All fields are required" });
+            setLoading(false);
         }
     };
 
@@ -67,8 +94,9 @@ export default function RegisterForm() {
                         Already have an account? <Link href="/login" className="text-blue-700 font-semibold hover:text-blue-800">Login</Link>
                     </div>
                     <div>
-                        <Button type="submit" className="bg-blue-500 hover:bg-green-500 focus:ring-2 font-medium focus:ring-blue-300 text-white w-full p-2.5 rounded-lg">
-                            Register
+                        <Button type="submit" className="bg-blue-500 hover:bg-green-500 focus:ring-2 font-medium focus:ring-blue-300 text-white w-full p-2.5 rounded-lg" disabled={isLoading}>
+                            {isLoading && <Loader2 className="animate-spin" />}
+                            {!isLoading && "Register"}
                         </Button>
                     </div>
                 </form>
