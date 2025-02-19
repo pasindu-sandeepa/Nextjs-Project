@@ -1,10 +1,12 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/ui/input"; 
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 
 const DEFAULT_ERROR = {
     error: false,
@@ -15,6 +17,8 @@ const DEFAULT_ERROR = {
 export default function RegisterForm() {
     const [error, setError] = useState(DEFAULT_ERROR);
     const [isLoading, setLoading] = useState(false);
+    const { toast } = useToast();
+    const formRef = useRef(null);
 
     const handleSubmitForm = async (event) => {
         event.preventDefault();
@@ -51,8 +55,21 @@ export default function RegisterForm() {
 
                 if (response.ok) {
                     console.log("User registered successfully", result);
+                    toast({
+                        variant: "success",
+                        title: "Registration successful!!",
+                        description: "Please continue with login",
+                        action: <ToastAction altText="login" className="hover:bg-white/90">Login</ToastAction>,
+                    });
+                    formRef.current.reset(); // Clear the form
                 } else {
                     setError({ error: true, message: result.error });
+                    toast({
+                        variant: "destructive",
+                        title: "Uh oh! Something went wrong.",
+                        description: "There was a problem with your request.",
+                        action: <ToastAction altText="Try again">Try again</ToastAction>,
+                    });
                 }
                 setLoading(false);
             }
@@ -65,7 +82,7 @@ export default function RegisterForm() {
     return (
         <div className="flex justify-center items-center min-h-screen">
             <div className="bg-white shadow-md border border-gray-200 rounded-lg p-6 w-[500px]">
-                <form onSubmit={handleSubmitForm} className="space-y-6">
+                <form ref={formRef} onSubmit={handleSubmitForm} className="space-y-6">
                     <h3 className="text-center text-xl font-bold text-blue-500">
                         Create an account
                     </h3>
