@@ -31,15 +31,9 @@ export default async function DashboardPage() {
   console.log("movie", moviesQuery);
 
   return (
-    <main>
-      {/* Navbar */}
-      <div className="bg-blue-400 w-full h-16 flex px-4 justify-start items-center">
-        <div className="container mx-auto">
-          <h1 className="text-white font-bold text-xl">Dashboard</h1>
-        </div>
-      </div>
-
-      <div className="container mt-8">
+ 
+      <div className="space-y-4">
+        <h1 className="text-3xl font-bold">Movies</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {moviesQuery?.length &&
             moviesQuery.map((movie) => (
@@ -67,6 +61,6 @@ export default async function DashboardPage() {
             ))}
         </div>
       </div>
-    </main>
+
   );
 }

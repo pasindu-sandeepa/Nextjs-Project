@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
-import { loginUser } from "../../lib/server";
+// import { loginUser } from "../../lib/server";
+import {signIn} from "@/lib/auth-client";
+
 
 //Client component for CSR
 export default function login_form() {
@@ -35,8 +37,9 @@ export default function login_form() {
     const isValid = validateForm();
     if (isValid) {
       // Login form data submission
-      const login = await loginUser({ email, password });
-      console.log("LOGIN RESPONSE", login);
+      // const login = await loginUser({ email, password });
+      // console.log("LOGIN RESPONSE", login);
+      
     }
   };
 
