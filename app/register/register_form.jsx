@@ -7,6 +7,8 @@ import Link from "next/link";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
+import { registerUser } from "@/lib/server"; // Import the registerUser function
+import { signUp } from "@/lib/auth-client"; // Import the signUp function
 
 const DEFAULT_ERROR = {
     error: false,
@@ -42,18 +44,12 @@ export default function RegisterForm() {
                 console.log("Form submitted", { name, email, password, confirmPassword });
                 setError(DEFAULT_ERROR);
 
-                // Send data to the API endpoint
-                const response = await fetch('/api/v1/register', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ name, email, password }),
-                });
+                // Commented out the existing validation code
+                /*
+                // Send data to the API endpoint using registerUser function
+                const result = await registerUser({ name, email, password });
 
-                const result = await response.json();
-
-                if (response.ok) {
+                if (!result.error) {
                     console.log("User registered successfully", result);
                     toast({
                         variant: "success",
@@ -63,7 +59,7 @@ export default function RegisterForm() {
                     });
                     formRef.current.reset(); // Clear the form
                 } else {
-                    setError({ error: true, message: result.error });
+                    setError({ error: true, message: result.message });
                     toast({
                         variant: "destructive",
                         title: "Uh oh! Something went wrong.",
@@ -71,6 +67,40 @@ export default function RegisterForm() {
                         action: <ToastAction altText="Try again">Try again</ToastAction>,
                     });
                 }
+                */
+
+                // New validation code using signUp function
+                const { data, error } = await signUp.email({
+                    email: email,
+                    password: password,
+                    name: name,
+                    image: undefined,
+                }, {
+                    onRequest: () => {
+                        // Handle request
+                    },
+                    onSuccess: (ctx) => {
+                        console.log("onSuccess", ctx);
+                        toast({
+                            variant: "success",
+                            title: "Registration successful!!",
+                            description: "Please continue with login",
+                            action: <ToastAction altText="login" className="hover:bg-white/90">Login</ToastAction>,
+                        });
+                        formRef.current.reset(); // Clear the form
+                    },
+                });
+
+                if (error) {
+                    setError({ error: true, message: error.message });
+                    toast({
+                        variant: "destructive",
+                        title: "Uh oh! Something went wrong.",
+                        description: "There was a problem with your request.",
+                        action: <ToastAction altText="Try again">Try again</ToastAction>,
+                    });
+                }
+
                 setLoading(false);
             }
         } else {

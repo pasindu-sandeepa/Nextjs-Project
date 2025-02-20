@@ -1,4 +1,4 @@
-import { getMovies } from "../libs/apis/server";
+import { getMovies } from "../../lib/server";
 import { Badge } from "@/components/ui/badge";
 
 // Define Card components directly in the file
