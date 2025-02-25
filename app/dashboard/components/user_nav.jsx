@@ -1,5 +1,4 @@
 "use client";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,7 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { useSession } from "@/lib/auth-client";
+import { useSession, signOut } from "@/lib/auth-client";
 import { LogOut, Settings, User } from "lucide-react";
 import { useRouter } from "next/navigation"; // Use useRouter for client-side navigation
 
@@ -18,9 +17,16 @@ export default function UserNav() {
   const { data: session } = useSession();
   const router = useRouter(); // Initialize the router
 
-  const handleLogout = () => {
-    // Navigate to the logout page
-    router.push("/login");
+  const handleLogout = async () => {
+    try {
+      // Call the signOut function to clear the session
+      await signOut();
+
+      // Redirect to the login page after successful sign-out
+      router.push("/login");
+    } catch (error) {
+      console.error("Failed to sign out:", error);
+    }
   };
 
   return (

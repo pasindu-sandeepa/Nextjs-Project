@@ -1,11 +1,10 @@
 "use client";
 import { useState } from "react";
-// import { loginUser } from "../../lib/server";
-import {signIn} from "@/lib/auth-client";
+import Link from "next/link"; // Import the Link component
+import { signIn } from "@/lib/auth-client";
+import { redirect } from "next/navigation";
 
-
-//Client component for CSR
-export default function login_form() {
+export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -39,7 +38,22 @@ export default function login_form() {
       // Login form data submission
       // const login = await loginUser({ email, password });
       // console.log("LOGIN RESPONSE", login);
-      
+
+      await signIn.email(
+        {
+          email,
+          password,
+        },
+        {
+          onSuccess: () => {
+            redirect("/dashboard");
+          },
+          onError: (ctx) => {
+            console.log(ctx.error.message);
+            setErrorMap(ctx.error.message);
+          },
+        }
+      );
     }
   };
 
@@ -115,9 +129,12 @@ export default function login_form() {
               </label>
             </div>
             <div className="text-sm ml-auto">
-              <a href="/ForgetPassword" className="text-blue-700 font-semibold">
+              <Link
+                href="/ForgetPassword"
+                className="text-blue-700 font-semibold"
+              >
                 Forget Password?
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -131,10 +148,9 @@ export default function login_form() {
           </div>
           <div className="flex justify-center text-gray-500 space-x-1">
             <span>Not registered yet?</span>
-            <a href="/register" className="text-blue-700 hover:underline">
+            <Link href="/register" className="text-blue-700 hover:underline">
               Create an account
-            </a>
-            <div></div>
+            </Link>
           </div>
         </form>
       </div>
