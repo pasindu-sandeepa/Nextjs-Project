@@ -31,36 +31,35 @@ export default async function DashboardPage() {
   console.log("movie", moviesQuery);
 
   return (
- 
-      <div className="space-y-4">
-        <h1 className="text-3xl font-bold">Movies</h1>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {moviesQuery?.length &&
-            moviesQuery.map((movie) => (
-              <div key={movie?._id} className="h-96">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>{movie?.title} ({movie?.year})</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <CardDescription>{movie?.plot}</CardDescription>
-                  </CardContent>
-                  <CardFooter>
-                    <div>
-                      <p className="font-medium">Category: {movie?.genres ?? "Unknown"}</p>
-                    </div >
-                    <div className="flex justify-between mt-9 ">
+    <div className="space-y-4">
+      <h1 className="text-3xl font-bold">Movies</h1>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {moviesQuery?.length > 0 &&
+          moviesQuery.map((movie) => (
+            <div key={movie._id} className="h-96">
+              <Card>
+                <CardHeader>
+                  <CardTitle>
+                    {movie.title} ({movie.year})
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription>{movie.plot}</CardDescription>
+                </CardContent>
+                <CardFooter>
+                  <div>
+                    <p className="font-medium">Category: {movie.genres ?? "Unknown"}</p>
+                  </div>
+                  <div className="flex justify-between mt-9">
                     <Badge variant="success" className="font-medium bg-green-800">
-                  Rated: {movie?.rated ?? "N/A"}
-                </Badge>
-                </div>
-                  </CardFooter>
-                </Card>
-               
-              </div>
-            ))}
-        </div>
+                      Rated: {movie.rated ?? "N/A"}
+                    </Badge>
+                  </div>
+                </CardFooter>
+              </Card>
+            </div>
+          ))}
       </div>
-
+    </div>
   );
 }
