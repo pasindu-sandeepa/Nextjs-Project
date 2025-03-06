@@ -20,8 +20,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import MultiSelect from "../../../components/multi_select";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";  // Import useToast
+import { ToastAction } from "@/components/ui/toast"; // Import ToastAction
 
 // Define the list of genres
 const genresList = [
@@ -39,9 +41,11 @@ const genresList = [
 const ratings = ["G", "PG", "PG-13", "R", "NC-17"];
 
 export default function AddMovieForm() {
+  const { toast } = useToast(); // Initialize useToast
   const [genres, setGenres] = useState([]);
   const [rated, setRated] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const formRef = useRef(null); // Reference to form
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -68,10 +72,38 @@ export default function AddMovieForm() {
       }
 
       const result = await response.json();
-      alert(result.message);
+
+      // Show success toast notification
+      toast({
+        variant: "success",
+        title: "Movie Added Successfully!",
+        description: "The movie has been successfully added to the database.",
+        action: (
+          <ToastAction
+            altText="View Movies"
+            className="hover:bg-white/90"
+            onClick={() => window.location.reload()} // Optional: Reload or navigate
+          >
+            View Movies
+          </ToastAction>
+        ),
+      });
+
+      // Clear form after success
+      formRef.current.reset();
+      setGenres([]);
+      setRated("");
+
     } catch (error) {
       console.error("Error submitting form:", error);
-      alert("Failed to add movie. Please try again.");
+
+      // Show error toast notification
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: "There was a problem adding the movie.",
+        action: <ToastAction altText="Try again">Try again</ToastAction>,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -83,7 +115,7 @@ export default function AddMovieForm() {
         <CardTitle>Add Movie</CardTitle>
         <CardDescription>Add a movie to the Mflix database</CardDescription>
       </CardHeader>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} ref={formRef}>
         <CardContent className="space-y-4">
           <div>
             <Label htmlFor="title">Movie Title</Label>
@@ -148,6 +180,7 @@ export default function AddMovieForm() {
             type="reset" 
             variant="outline"
             onClick={() => {
+              formRef.current.reset();
               setGenres([]);
               setRated("");
             }}
