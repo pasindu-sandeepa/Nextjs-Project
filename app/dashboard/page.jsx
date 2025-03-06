@@ -48,10 +48,24 @@ export default async function DashboardPage() {
                 </CardContent>
                 <CardFooter>
                   <div>
-                    <p className="font-medium">Category: {movie.genres ?? "Unknown"}</p>
+                    <p className="font-medium">Category:</p>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {movie.genres?.map((genre, index) => (
+                        <Badge
+                          key={index}
+                          variant="outline"
+                          className="text-sm"
+                        >
+                          {genre}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
                   <div className="flex justify-between mt-9">
-                    <Badge variant="success" className="font-medium bg-green-800">
+                    <Badge
+                      variant="success"
+                      className="font-medium bg-green-800"
+                    >
                       Rated: {movie.rated ?? "N/A"}
                     </Badge>
                   </div>

@@ -22,7 +22,6 @@ import { Textarea } from "@/components/ui/textarea";
 import MultiSelect from "../../../components/multi_select";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
-import { createMovie } from "@/lib/actions/movie";
 
 // Define the list of genres
 const genresList = [
@@ -48,14 +47,14 @@ export default function AddMovieForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-  
+
     try {
       const formData = new FormData(e.target);
       const data = Object.fromEntries(formData.entries());
       data.genres = genres;
       data.rated = rated;
       data.year = parseInt(data.year, 10); // Convert year to number
-  
+
       const response = await fetch("/api/movies", {
         method: "POST",
         headers: {
@@ -63,11 +62,11 @@ export default function AddMovieForm() {
         },
         body: JSON.stringify(data),
       });
-  
+
       if (!response.ok) {
         throw new Error("Failed to save movie.");
       }
-  
+
       const result = await response.json();
       alert(result.message);
     } catch (error) {
@@ -77,6 +76,7 @@ export default function AddMovieForm() {
       setIsLoading(false);
     }
   };
+
   return (
     <Card className="max-w-2xl mx-auto">
       <CardHeader>
