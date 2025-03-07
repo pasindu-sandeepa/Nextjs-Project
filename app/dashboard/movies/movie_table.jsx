@@ -17,6 +17,7 @@ const MoviesTable = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
+  // Fetch movies on initial load
   useEffect(() => {
     const fetchMovies = async () => {
       const response = await fetch("/api/movies");
@@ -26,6 +27,17 @@ const MoviesTable = () => {
 
     fetchMovies();
   }, []);
+
+  // Re-fetch movies when an update is successful
+  const handleUpdateSuccess = () => {
+    const fetchMovies = async () => {
+      const response = await fetch("/api/movies");
+      const data = await response.json();
+      setMovies(data);
+    };
+
+    fetchMovies();
+  };
 
   const handleDeleteClick = (movie) => {
     setSelectedMovie(movie);
@@ -85,6 +97,7 @@ const MoviesTable = () => {
         <EditMovieForm
           movie={selectedMovie}
           onClose={() => setIsEditDialogOpen(false)}
+          onUpdateSuccess={handleUpdateSuccess} // Pass the success handler to trigger the re-fetch
         />
       )}
       

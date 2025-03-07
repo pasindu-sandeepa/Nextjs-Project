@@ -1,18 +1,20 @@
-"use client";
-
-import {
-  Dialog,
-  DialogContent,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { CardContent, CardFooter } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import MultiSelect from "../../../components/multi_select";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 import { useState, useEffect, useRef } from "react";
 import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast"; // Import the toast hook
 
 const genresList = [
   { label: "Action", value: "action" },
@@ -28,16 +30,18 @@ const genresList = [
 const ratingsList = ["G", "PG", "PG-13", "R", "NC-17"];
 
 const EditMovieForm = ({ movie, onClose }) => {
+  const [genres, setGenres] = useState([]);
   const [formData, setFormData] = useState({
     title: "",
     year: "",
     plot: "",
-    genres: [],
+    genres: [], // Initialize genres as an empty array
     rated: "",
     actorName: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const formRef = useRef(null);
+  const { toast } = useToast(); // Initialize the toast hook
 
   useEffect(() => {
     if (movie) {
@@ -45,7 +49,7 @@ const EditMovieForm = ({ movie, onClose }) => {
         title: movie.title || "",
         year: movie.year || "",
         plot: movie.plot || "",
-        genres: movie.genres || [],
+        genres: movie.genres || [], // Ensure genres are set correctly
         rated: movie.rated || "",
         actorName: movie.actorName || "",
       });
@@ -58,39 +62,81 @@ const EditMovieForm = ({ movie, onClose }) => {
   };
 
   const handleGenresChange = (selectedGenres) => {
-    setFormData((prev) => ({ ...prev, genres: selectedGenres }));
+    setFormData((prev) => ({ ...prev, genres: selectedGenres })); // Update genres
   };
 
   const handleRatedChange = (value) => {
     setFormData((prev) => ({ ...prev, rated: value }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     setIsLoading(true);
 
-    console.log("Submitting movie data:", formData);
+    try {
+      const response = await fetch(`/api/movies?id=${movie._id}`, {
+        method: "PUT", // Using PUT for updating movie details
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
 
-    setTimeout(() => {
+      if (!response.ok) {
+        const errorMessage = await response.json();
+        throw new Error(errorMessage.message || "Failed to update movie.");
+      }
+
+      // Show success toast
+      toast({
+        variant: "success",
+        title: "Movie Updated Successfully!",
+        description: `The movie "${formData.title}" has been updated.`,
+        duration: 5000,
+      });
+
+      console.log("Movie updated successfully.");
       setIsLoading(false);
-      onClose();
-    }, 2000);
+      onClose(); // Close the dialog
+    } catch (error) {
+      console.error("Error updating movie:", error);
+
+      // Show error toast
+      toast({
+        variant: "destructive",
+        title: "Failed to Update Movie",
+        description:
+          error.message ||
+          "There was an issue updating the movie. Please try again.",
+        duration: 5000,
+      });
+
+      setIsLoading(false);
+    }
   };
 
   const handleReset = () => {
+    // Reset the form fields to their initial state
     formRef.current.reset();
+
+    // Reset the formData state to its initial state
     setFormData({
-      title: movie?.title || "",
-      year: movie?.year || "",
-      plot: movie?.plot || "",
-      genres: movie?.genres || [],
-      rated: movie?.rated || "",
-      actorName: movie?.actorName || "",
+      title: "",
+      year: "",
+      plot: "",
+      genres: [], // Clear genres selection
+      rated: "",
+      actorName: "",
     });
   };
 
   return (
-    <Dialog open={true} onOpenChange={(open) => { if (!open) onClose(); }}>
+    <Dialog
+      open={true}
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
       <DialogContent>
         <form onSubmit={handleSubmit} ref={formRef}>
           <CardContent className="space-y-4">
@@ -135,9 +181,8 @@ const EditMovieForm = ({ movie, onClose }) => {
               <Label htmlFor="genres">Movie Genres</Label>
               <MultiSelect
                 list={genresList}
-                value={formData.genres}
                 placeholder="Select movie genres"
-                onValueChange={handleGenresChange}
+                onValueChange={setGenres}
               />
             </div>
             <div>
@@ -161,7 +206,8 @@ const EditMovieForm = ({ movie, onClose }) => {
               Clear Form
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading && <Loader2 className="animate-spin mr-2" />}Save Changes
+              {isLoading && <Loader2 className="animate-spin mr-2" />}Save
+              Changes
             </Button>
           </CardFooter>
         </form>
