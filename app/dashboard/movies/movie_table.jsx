@@ -1,17 +1,21 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Edit, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import EditMovieForm from "./edit_movie_form";  // Ensure this path is correct
+import DeleteMovie from "./delete_movie";  
 
 const MoviesTable = () => {
   const { toast } = useToast();
+  const router = useRouter();
   const [movies, setMovies] = useState([]);
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   useEffect(() => {
     const fetchMovies = async () => {
@@ -23,30 +27,9 @@ const MoviesTable = () => {
     fetchMovies();
   }, []);
 
-  const handleDelete = async (movieId) => {
-    try {
-      const response = await fetch(`/api/movies/${movieId}`, { method: "DELETE" });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete movie.");
-      }
-
-      setMovies(movies.filter((movie) => movie.movie_id !== movieId));
-
-      toast({
-        variant: "success",
-        title: "Movie Deleted",
-        description: "The movie has been successfully deleted from the database.",
-        action: <ToastAction altText="Undo">Undo</ToastAction>,
-      });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to delete the movie.",
-        action: <ToastAction altText="Try again">Try again</ToastAction>,
-      });
-    }
+  const handleDeleteClick = (movie) => {
+    setSelectedMovie(movie);
+    setIsDeleteDialogOpen(true);
   };
 
   const handleEditClick = (movie) => {
@@ -88,7 +71,7 @@ const MoviesTable = () => {
                   variant="destructive"
                   size="sm"
                   className="min-w-[120px] bg-red-500 text-white hover:bg-red-600 px-4 py-2"
-                  onClick={() => handleDelete(movie.movie_id)}
+                  onClick={() => handleDeleteClick(movie)}
                 >
                   <Trash2 size={16} /> Delete
                 </Button>
@@ -102,6 +85,13 @@ const MoviesTable = () => {
         <EditMovieForm
           movie={selectedMovie}
           onClose={() => setIsEditDialogOpen(false)}
+        />
+      )}
+      
+      {isDeleteDialogOpen && selectedMovie && (
+        <DeleteMovie
+          movie={selectedMovie}
+          onClose={() => setIsDeleteDialogOpen(false)}
         />
       )}
     </div>
