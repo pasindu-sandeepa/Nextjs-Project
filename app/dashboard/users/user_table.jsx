@@ -28,7 +28,7 @@ export default function UserTable() {
   }, []);
 
   const handleDelete = async (userId) => {
-    const response = await fetch(`/api/users/${userId}`, {
+    const response = await fetch(`/api/users?id=${userId}`, {
       method: "DELETE",
     });
 
@@ -67,13 +67,11 @@ export default function UserTable() {
       {/* Toast notifications container */}
       <div>
         <Table>
-          <TableCaption>A list of users</TableCaption>
           <TableHeader>
             <TableRow>
               <TableHead className="w-[100px]">Name</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Created At</TableHead>
-              <TableHead>Password</TableHead>
               <TableHead>Actions</TableHead> {/* Column for actions */}
             </TableRow>
           </TableHeader>
@@ -83,7 +81,6 @@ export default function UserTable() {
                 <TableCell>{user.name}</TableCell> {/* Adjust field names as per your data */}
                 <TableCell>{user.email}</TableCell>
                 <TableCell>{user.createdAt}</TableCell>
-                <TableCell>  </TableCell> {/* Adjust the date format as needed */}
                 <TableCell>
                   <Button
                     variant="destructive"

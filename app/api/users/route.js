@@ -1,48 +1,85 @@
 import { NextResponse } from "next/server";
-import clientPromise from "@/lib/mongodb";  // MongoDB client connection
-import { ObjectId } from "mongodb";  // MongoDB ObjectId to ensure valid deletion
+import clientPromise from "@/lib/mongodb";
+import { ObjectId } from "mongodb";
 
-// GET function to retrieve all users
-export async function GET(request) {
+// GET function to retrieve users
+export async function GET() {
   try {
-    const client = await clientPromise;  // Connect to MongoDB
-    const database = client.db("sample_mflix");  // Replace with your database name
-    const users = await database
-      .collection("user")  // The user collection
-      .find({})
-      .limit(20)  // Optional: Limit the number of users returned
-      .toArray();  // Convert MongoDB cursor to an array
+    const client = await clientPromise;
+    const database = client.db("sample_mflix"); // Replace with your actual database name
 
-    return NextResponse.json(users);  // Return the data as JSON
+    const users = await database
+      .collection("user") // Ensure the collection name is correct (e.g., "user")
+      .find()
+      .toArray();
+
+    return NextResponse.json(users);
   } catch (error) {
-    console.error("MongoDB Error", error);
-    return NextResponse.json({ error: "Internal Server Error", details: error.message }, { status: 500 });
+    console.error("Error fetching users:", error);
+    return NextResponse.json({ message: "Failed to fetch users." }, { status: 500 });
   }
 }
 
 // DELETE function to remove a user by ID
-export async function DELETE(request, { params }) {
+export async function DELETE(request) {
   try {
-    const { id } = params;  // Extract user ID from URL parameters
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get("id"); // Get the user ID from the query string
 
-    // Validate the ObjectId
-    if (!ObjectId.isValid(id)) {
+    console.log("Attempting to delete user with ID:", userId); // Debugging Log
+
+    // Validate the user ID format
+    if (!userId || !ObjectId.isValid(userId)) {
+      console.error("Invalid User ID:", userId);
       return NextResponse.json({ error: "Invalid User ID" }, { status: 400 });
     }
 
-    const client = await clientPromise;  // Connect to MongoDB
-    const database = client.db("sample_mflix");  // Replace with your database name
+    const client = await clientPromise;
+    const database = client.db("sample_mflix"); // Replace with your actual database name
 
-    // Delete the user from the database using the provided ID
-    const result = await database.collection("user").deleteOne({ _id: new ObjectId(id) });
+    // Start a session for transaction
+    const session = client.startSession();
 
-    if (result.deletedCount === 0) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    // Start a transaction
+    session.startTransaction();
+
+    try {
+      // Delete the user from the user collection
+      const deleteUserResult = await database
+        .collection("user") // Ensure the collection name is correct (e.g., "user")
+        .deleteOne({ _id: new ObjectId(userId) }, { session });
+
+      if (deleteUserResult.deletedCount === 0) {
+        console.error("User not found:", userId);
+        return NextResponse.json({ message: "User not found" }, { status: 404 });
+      }
+
+      // Delete the related account from the account collection
+      const deleteAccountResult = await database
+        .collection("account") // Ensure this is the correct collection name (e.g., "account")
+        .deleteOne({ userId: new ObjectId(userId) }, { session });
+
+      if (deleteAccountResult.deletedCount === 0) {
+        console.error("Account for user not found:", userId);
+        return NextResponse.json({ message: "Account not found for user" }, { status: 404 });
+      }
+
+      // Commit the transaction
+      await session.commitTransaction();
+
+      console.log("User and account deleted successfully:", userId);
+      return NextResponse.json({ message: "User and account deleted successfully!" }, { status: 200 });
+    } catch (error) {
+      // Abort the transaction in case of error
+      await session.abortTransaction();
+      console.error("Error during deletion:", error);
+      return NextResponse.json({ message: "Failed to delete user and account." }, { status: 500 });
+    } finally {
+      // End the session
+      session.endSession();
     }
-
-    return NextResponse.json({ message: "User deleted successfully" }, { status: 200 });
   } catch (error) {
-    console.error("MongoDB Error", error);
-    return NextResponse.json({ error: "Internal Server Error", details: error.message }, { status: 500 });
+    console.error("Error deleting user:", error);
+    return NextResponse.json({ message: "Failed to delete user." }, { status: 500 });
   }
 }

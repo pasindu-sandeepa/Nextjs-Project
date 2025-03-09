@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import { ThemeProvider } from "@/app/theme-provider";
+import { ModeToggle } from "./ModeToggle"; // Import ModeToggle
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,15 +26,26 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="light">
+    <html lang="en" suppressHydrationWarning>
+      <head />
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-stone-200`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white`}
       >
-        {children}
-        <Toaster/>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {/* Place ModeToggle inside the ThemeProvider */}
+          <div className="fixed bottom-4 right-4 z-10">
+            <ModeToggle />
+          </div>
+
+          {children}
+        </ThemeProvider>
+        <Toaster />
       </body>
     </html>
   );
 }
-
-
