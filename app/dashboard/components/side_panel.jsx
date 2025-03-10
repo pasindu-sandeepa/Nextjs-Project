@@ -3,7 +3,7 @@ import { Film, PlusCircle, Settings, Users, LayoutDashboard } from "lucide-react
 import Link from "next/link";
 
 const items = [
-  { title: "Overview", url: "/dashboard", icon: LayoutDashboard },
+  { title: "Overview", url: "/dashboard/overview", icon: LayoutDashboard },
   { title: "Movies", url: "/dashboard/movies", icon: Film },
   { title: "Add Movies", url: "/dashboard/add_movie", icon: PlusCircle },
   { title: "Users", url: "/dashboard/users", icon: Users },
